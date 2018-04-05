@@ -80,10 +80,13 @@ class Game extends React.Component {
     handleClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
-        const squares = current.squares.slice();
+        const squares = JSON.parse(JSON.stringify(current.squares));
+
+        // current.squares.slice();
         // if (calculateWinner(squares) || squares[i]) {
         //     return;
         // }
+
         squares[i].player = this.state.xIsNext ? "X" : "O";
         this.setState({
             history: history.concat([
@@ -103,7 +106,6 @@ class Game extends React.Component {
         let column = 1;
 
         for ( let x = 0; x < square_length; x++ ) {
-            console.log('outer loop');
             for ( let i = 0; i < square_length; i++ ) {
 
                 data_set.push({
