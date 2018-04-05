@@ -15,7 +15,7 @@ class Board extends React.Component {
         return (
             <Square
                 key={i}
-                value={this.props.squares[i]}
+                value={this.props.squares[i].player}
                 onClick={() => this.props.onClick(i)}
             />
         );
@@ -68,7 +68,7 @@ class Game extends React.Component {
         this.state = {
             history: [
                 {
-                    squares: Array(this.square_count).fill(null)
+                    squares: this.create_square_data_set(this.square_length)
                 }
             ],
             stepNumber: 0,
@@ -94,6 +94,33 @@ class Game extends React.Component {
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext
         });
+    }
+
+    create_square_data_set(square_length){
+
+        let data_set	= [];
+        let row = 1;
+        let column = 1;
+
+        for ( let x = 0; x < square_length; x++ ) {
+            console.log('outer loop');
+            for ( let i = 0; i < square_length; i++ ) {
+
+                data_set.push({
+                    position: {
+                        row: row,
+                        column: column,
+                    },
+                    player: null
+                });
+                column ++;
+            }
+            row ++;
+            column = 1;
+        }
+
+        return data_set;
+
     }
 
     jumpTo(step) {
