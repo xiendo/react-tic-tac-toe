@@ -62,9 +62,9 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
 
-        this.board_width = 4;
+        this.board_width = 5;
         this.square_count = Math.pow(this.board_width, 2);
-
+        this.diagonal_wins = this.getDiag();
         this.state = {
             history: [
                 {
@@ -72,20 +72,24 @@ class Game extends React.Component {
                 }
             ],
             stepNumber: 0,
-            xIsNext: true
+            current_player: 'O',
+            xIsNext: true,
         };
 
     }
 
     handleClick(i) {
+
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = JSON.parse(JSON.stringify(current.squares));
 
-        // current.squares.slice();
-        // if (calculateWinner(squares) || squares[i]) {
-        //     return;
-        // }
+        /**
+         * Prevents unnecessary square click events
+         */
+        if (this.getWinner(squares)|| squares[i].player) {
+            return;
+        }
 
         squares[i].player = this.state.xIsNext ? "X" : "O";
         this.setState({
@@ -95,8 +99,10 @@ class Game extends React.Component {
                 }
             ]),
             stepNumber: history.length,
+            current_player: squares[i].player,
             xIsNext: !this.state.xIsNext
         });
+
     }
 
     create_square_data_set(square_length){
@@ -132,10 +138,102 @@ class Game extends React.Component {
         });
     }
 
+    getWinner( square_data_set ){
+
+        const current_player = this.state.current_player;
+        const player_data_set = square_data_set.filter( ( value, index, arr ) => {
+            return (value.player === current_player);
+        });
+
+        if(player_data_set.length >= this.board_width){
+
+            //check row wins
+            for(let i = 1; i <= this.board_width; i++){
+
+                const row = player_data_set.filter( ( value, index, arr ) => {
+                    return (value.position.row === i);
+                });
+
+                if(row.length === this.board_width){
+                    return this.state.current_player;
+                }
+
+            }
+
+            //check col wins
+            for(let c = 1; c <= this.board_width; c++){
+
+                const column = player_data_set.filter( ( value, index, arr ) => {
+                    return (value.position.column === c)
+                });
+
+                if(column.length === this.board_width){
+                    return this.state.current_player;
+                }
+
+            }
+
+            //Check diagnonal wins
+            for(let d = 0; d< this.diagonal_wins.length; d++){
+
+                let results = [];
+
+                for(let x = 0; x< this.diagonal_wins[d].length; x++){
+
+                    const row = this.diagonal_wins[d][x].row;
+                    const column = this.diagonal_wins[d][x].column;
+
+                    let found_results = player_data_set.filter( ( value, index, arr ) => {
+                        return (value.position.row === row && value.position.column === column);
+                    });
+
+                    results = results.concat(found_results);
+
+                    if(results.length === this.board_width){
+                        return this.state.current_player;
+                    }
+
+                }
+
+            }
+
+        }
+
+        return false;
+    }
+
+    getDiag(){
+
+        let result = [];
+        let diag_one = [];
+        let diag_two = [];
+
+        for(let i = 1; i <= this.board_width; i++){
+
+            diag_one.push({
+                row: i,
+                column: i
+            });
+
+            diag_two.push({
+                row: i,
+                column: this.board_width - (i - 1)
+            });
+
+        }
+
+        result.push(diag_one);
+        result.push(diag_two);
+
+        return result;
+
+    }
+
+
     render() {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
-        const winner = calculateWinner(current.squares);
+        const winner = this.getWinner(current.squares);
 
         const moves = history.map((step, move) => {
             const desc = move ?
@@ -174,6 +272,7 @@ class Game extends React.Component {
             </div>
         );
     }
+
 }
 
 // ========================================
@@ -198,8 +297,4 @@ function chunkArray( arr, chunk_size){
     }
 
     return chunks;
-}
-
-function calculateWinner(){
-    return false;
 }
