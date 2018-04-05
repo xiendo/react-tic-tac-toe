@@ -73,6 +73,7 @@ class Game extends React.Component {
             ],
             stepNumber: 0,
             current_player: 'O',
+            current_square: null,
             xIsNext: true,
         };
 
@@ -100,6 +101,7 @@ class Game extends React.Component {
             ]),
             stepNumber: history.length,
             current_player: squares[i].player,
+            current_position: squares[i].position,
             xIsNext: !this.state.xIsNext
         });
 
@@ -148,29 +150,21 @@ class Game extends React.Component {
         if(player_data_set.length >= this.board_width){
 
             //check row wins
-            for(let i = 1; i <= this.board_width; i++){
+            const row = player_data_set.filter( ( value, index, arr ) => {
+                return (value.position.row === this.state.current_position.row);
+            });
 
-                const row = player_data_set.filter( ( value, index, arr ) => {
-                    return (value.position.row === i);
-                });
-
-                if(row.length === this.board_width){
-                    return this.state.current_player;
-                }
-
+            if(row.length === this.board_width){
+                return this.state.current_player;
             }
 
             //check col wins
-            for(let c = 1; c <= this.board_width; c++){
+            const column = player_data_set.filter( ( value, index, arr ) => {
+                return (value.position.column === this.state.current_position.column)
+            });
 
-                const column = player_data_set.filter( ( value, index, arr ) => {
-                    return (value.position.column === c)
-                });
-
-                if(column.length === this.board_width){
-                    return this.state.current_player;
-                }
-
+            if(column.length === this.board_width){
+                return this.state.current_player;
             }
 
             //Check diagnonal wins
