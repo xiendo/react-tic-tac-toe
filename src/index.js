@@ -42,7 +42,7 @@ class Board extends React.Component {
         const square_keys = this.props.squares.map((value, index) => {
             return index;
         });
-        const chunks = chunkArray(square_keys, this.props.length);
+        const chunks = chunkArray(square_keys, this.props.board_width);
 
         for(let i=0; i < chunks.length; i++){
 
@@ -62,13 +62,13 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
 
-        this.square_length = 4;
-        this.square_count = Math.pow(this.square_length, 2);
+        this.board_width = 4;
+        this.square_count = Math.pow(this.board_width, 2);
 
         this.state = {
             history: [
                 {
-                    squares: this.create_square_data_set(this.square_length)
+                    squares: this.create_square_data_set(this.board_width)
                 }
             ],
             stepNumber: 0,
@@ -161,8 +161,8 @@ class Game extends React.Component {
             <div className="game">
                 <div className="game-board">
                     <Board
-                        length={this.square_length}
-                        count={this.square_count}
+                        board_width={this.board_width}
+                        square_count={this.square_count}
                         squares={current.squares}
                         onClick={i => this.handleClick(i)}
                     />
@@ -179,26 +179,6 @@ class Game extends React.Component {
 // ========================================
 
 ReactDOM.render(<Game />, document.getElementById("root"));
-
-function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
-        }
-    }
-    return null;
-}
 
 /**
  * Splits an array into chunks given a size
@@ -218,4 +198,8 @@ function chunkArray( arr, chunk_size){
     }
 
     return chunks;
+}
+
+function calculateWinner(){
+    return false;
 }
