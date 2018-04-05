@@ -14,30 +14,39 @@ class Board extends React.Component {
     renderSquare(i) {
         return (
             <Square
+                key={i}
                 value={this.props.squares[i]}
                 onClick={() => this.props.onClick(i)}
             />
         );
     }
 
+    renderRow(i){
+
+        let row = [];
+
+        for(let i=0; i < this.props.length; i++){
+            row.push(this.renderSquare(i));
+        }
+
+        return (
+            <div key={i} className="board-row">
+                {row}
+            </div>
+        );
+    }
+
     render() {
+
+        let board = [];
+
+        for(let i=0; i < this.props.length; i++){
+            board.push(this.renderRow(i));
+        }
+
         return (
             <div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
+                {board}
             </div>
         );
     }
@@ -46,10 +55,14 @@ class Board extends React.Component {
 class Game extends React.Component {
     constructor(props) {
         super(props);
+
+        this.square_length = 3;
+        this.square_count = Math.pow(this.square_length, 2);
+
         this.state = {
             history: [
                 {
-                    squares: Array(9).fill(null)
+                    squares: Array(this.square_count).fill(null)
                 }
             ],
             stepNumber: 0,
@@ -106,10 +119,14 @@ class Game extends React.Component {
             status = "Next player: " + (this.state.xIsNext ? "X" : "O");
         }
 
+        //
+
         return (
             <div className="game">
                 <div className="game-board">
                     <Board
+                        length={this.square_length}
+                        count={this.square_count}
                         squares={current.squares}
                         onClick={i => this.handleClick(i)}
                     />
