@@ -49,10 +49,12 @@ ol, ul {
   margin-left: 20px;
 }
 
-.game-info ol{
-  padding-left: 15px;
+.game-info #moves-list{
+  padding-left: 0;
+  margin: 0;
+  list-style-type: none;
 }
 
 .game-info .history-btns{
-  min-width: 200px;
+  min-width: 225px;
 }

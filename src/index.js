@@ -2,9 +2,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-function Square(props) {
+function Square(props){
     return (
         <button className="square" onClick={props.onClick}>
+            {props.value}
+        </button>
+    );
+}
+
+function HistoryOrderBtn(props){
+    return (
+        <button className={props.className} onClick={props.onClick}>
             {props.value}
         </button>
     );
@@ -67,7 +75,7 @@ class Game extends React.Component {
         this.center = ( this.boardHasCenter() ) ? Math.round(this.square_count / 2) - 1 : false;
         this.corners = this.getCorners();
         this.diag_square_indexes = this.getDiagSquareIndexes();
-
+        this.handleHistoryOrderClick = this.handleHistoryOrderClick.bind(this);
         this.state = {
             history: [
                 {
@@ -80,11 +88,16 @@ class Game extends React.Component {
             current_player: 'O',
             current_position: null,
             xIsNext: true,
+            historyAsc: true
         };
 
     }
 
-    handleClick(i) {
+    /**
+     *
+     * @param i
+     */
+    handleSquareClick(i) {
 
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
@@ -109,9 +122,15 @@ class Game extends React.Component {
             stepNumber: history.length,
             current_player: squares[i].player,
             current_position: Object.assign(squares[i].position, {index: i}),
-            xIsNext: !this.state.xIsNext
+            xIsNext: !this.state.xIsNext,
         });
 
+    }
+
+    handleHistoryOrderClick(){
+        this.setState({
+            historyAsc: !this.state.historyAsc
+        })
     }
 
     /**
@@ -279,7 +298,7 @@ class Game extends React.Component {
 
             const font_weight = ( move === this.state.stepNumber) ? 700 : 300;
             const desc = move ?
-                `Player ${step.player}: ( row: ${step.position.row}, column: ${step.position.column} )` :
+                `${move}. Player ${step.player}: ( row: ${step.position.row}, column: ${step.position.column} )` :
                 'START';
             return (
                 <li key={move}>
@@ -288,14 +307,18 @@ class Game extends React.Component {
             );
         });
 
+        //reverse history order if user toggled ASC/DESC btn
+        if( !this.state.historyAsc ){
+            const start_btn = moves.shift();
+            moves.reverse().unshift(start_btn);
+        }
+
         let status;
         if (winner) {
             status = "Winner: " + winner;
         } else {
             status = "Next player: " + (this.state.xIsNext ? "X" : "O");
         }
-
-        //
 
         return (
             <div className="game">
@@ -304,13 +327,19 @@ class Game extends React.Component {
                         board_width={this.board_width}
                         square_count={this.square_count}
                         squares={current.squares}
-                        onClick={i => this.handleClick(i)}
+                        onClick={i => this.handleSquareClick(i)}
                     />
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
                     <h3>Go to a move</h3>
-                    <ol>{moves}</ol>
+                    <HistoryOrderBtn
+                        className="history-btns"
+                        value={(!this.state.historyAsc) ? "Ascending" : "Descending" }
+                        onClick={ i => this.handleHistoryOrderClick(i)}
+                        historyAsc={this.state.historyAsc}
+                    />
+                    <ol id='moves-list'>{moves}</ol>
                 </div>
             </div>
         );
