@@ -276,12 +276,14 @@ class Game extends React.Component {
         const winner = this.getWinner(current.squares);
 
         const moves = history.map((step, move) => {
+
+            const font_weight = ( move === this.state.stepNumber) ? 700 : 300;
             const desc = move ?
                 `Player ${step.player}: ( row: ${step.position.row}, column: ${step.position.column} )` :
                 'START';
             return (
                 <li key={move}>
-                    <button className='history-btns' onClick={() => this.jumpTo(move)}>{desc}</button>
+                    <button style={{ fontWeight: font_weight }} className='history-btns' onClick={() => this.jumpTo(move)}>{desc}</button>
                 </li>
             );
         });
