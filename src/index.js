@@ -71,12 +71,14 @@ class Game extends React.Component {
         this.state = {
             history: [
                 {
-                    squares: create_square_data_set(this.board_width)
+                    squares: create_square_data_set(this.board_width),
+                    player: null,
+                    position: null
                 }
             ],
             stepNumber: 0,
             current_player: 'O',
-            current_square: null,
+            current_position: null,
             xIsNext: true,
         };
 
@@ -99,12 +101,14 @@ class Game extends React.Component {
         this.setState({
             history: history.concat([
                 {
-                    squares: squares
+                    squares: squares,
+                    player: squares[i].player,
+                    position: Object.assign(squares[i].position, {index: i})
                 }
             ]),
             stepNumber: history.length,
             current_player: squares[i].player,
-            current_position: squares[i].position,
+            current_position: Object.assign(squares[i].position, {index: i}),
             xIsNext: !this.state.xIsNext
         });
 
@@ -273,11 +277,11 @@ class Game extends React.Component {
 
         const moves = history.map((step, move) => {
             const desc = move ?
-                'Go to move #' + move :
-                'Go to game start';
+                `Player ${step.player}: ( row: ${step.position.row}, column: ${step.position.column} )` :
+                'START';
             return (
                 <li key={move}>
-                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
+                    <button className='history-btns' onClick={() => this.jumpTo(move)}>{desc}</button>
                 </li>
             );
         });
@@ -303,6 +307,7 @@ class Game extends React.Component {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
+                    <h3>Go to a move</h3>
                     <ol>{moves}</ol>
                 </div>
             </div>
