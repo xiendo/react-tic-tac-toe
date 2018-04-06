@@ -62,13 +62,16 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
 
-        this.board_width = 5;
+        this.board_width = 4;
         this.square_count = Math.pow(this.board_width, 2);
-        this.diagonal_wins = this.getDiag();
+        this.center = ( this.boardHasCenter() ) ? Math.round(this.square_count / 2) - 1 : false;
+        this.corners = this.getCorners();
+        this.diag_square_indexes = this.getDiagSquareIndexes();
+
         this.state = {
             history: [
                 {
-                    squares: this.create_square_data_set(this.board_width)
+                    squares: create_square_data_set(this.board_width)
                 }
             ],
             stepNumber: 0,
@@ -107,31 +110,34 @@ class Game extends React.Component {
 
     }
 
-    create_square_data_set(square_length){
+    /**
+     * Helps reduce diagonal win checks
+     *
+     * @returns {boolean}
+     */
+    boardHasCenter(){
+        return (this.board_width % 2 === 1)
+    }
 
-        let data_set	= [];
-        let row = 1;
-        let column = 1;
 
-        for ( let x = 0; x < square_length; x++ ) {
-            for ( let i = 0; i < square_length; i++ ) {
+    /**
+     * Gets the index value of each corner of the square/board
+     */
+    getCorners(){
 
-                data_set.push({
-                    position: {
-                        row: row,
-                        column: column,
-                    },
-                    player: null
-                });
-                column ++;
-            }
-            row ++;
-            column = 1;
-        }
+        //corner 1
+        let corners = [0];
+        //corner 2
+        corners.push(this.board_width - 1);
+        //corner 3
+        corners.push((this.square_count - 1) - (this.board_width -1));
+        //corner 4
+        corners.push(this.square_count - 1);
 
-        return data_set;
+        return corners;
 
     }
+
 
     jumpTo(step) {
         this.setState({
@@ -140,20 +146,20 @@ class Game extends React.Component {
         });
     }
 
-    getWinner( square_data_set ){
+    getWinner( current_squares ){
 
         const current_player = this.state.current_player;
-        const player_data_set = square_data_set.filter( ( value, index, arr ) => {
+        const player_data_set = current_squares.filter( ( value, index, arr ) => {
             return (value.player === current_player);
         });
 
+        //player has enough moves to win
         if(player_data_set.length >= this.board_width){
 
             //check row wins
             const row = player_data_set.filter( ( value, index, arr ) => {
                 return (value.position.row === this.state.current_position.row);
             });
-
             if(row.length === this.board_width){
                 return this.state.current_player;
             }
@@ -162,31 +168,41 @@ class Game extends React.Component {
             const column = player_data_set.filter( ( value, index, arr ) => {
                 return (value.position.column === this.state.current_position.column)
             });
-
             if(column.length === this.board_width){
                 return this.state.current_player;
             }
 
-            //Check diagnonal wins
-            for(let d = 0; d< this.diagonal_wins.length; d++){
+            //Check diagonal wins
+            //Bail early if player does not have center OR at least 2 corners
+            if(
+                ( this.center && !this.currentPlayerOwnsCenter(current_squares) ) ||
+                !this.currentPlayerHasEnoughCorners(current_squares)
 
-                let results = [];
+            ){
+                return false;
+            }
 
-                for(let x = 0; x< this.diagonal_wins[d].length; x++){
+            //Run diagonal win check
+            for(let d = 0; d < this.diag_square_indexes.length; d++){
 
-                    const row = this.diagonal_wins[d][x].row;
-                    const column = this.diagonal_wins[d][x].column;
+                let result = [];
 
-                    let found_results = player_data_set.filter( ( value, index, arr ) => {
-                        return (value.position.row === row && value.position.column === column);
-                    });
+                for(let i = 0; i < this.diag_square_indexes[d].length; i++){
 
-                    results = results.concat(found_results);
+                    const square_index = this.diag_square_indexes[d][i];
 
-                    if(results.length === this.board_width){
-                        return this.state.current_player;
+                    if(
+                        typeof current_squares[square_index] !== 'undefined' &&
+                        current_squares[square_index].hasOwnProperty('player') &&
+                        current_squares[square_index].player === this.state.current_player
+                    ){
+                        result.push(square_index);
                     }
 
+                }
+
+                if(result.length === this.board_width){
+                    return this.state.current_player;
                 }
 
             }
@@ -194,30 +210,56 @@ class Game extends React.Component {
         }
 
         return false;
+
     }
 
-    getDiag(){
+    currentPlayerOwnsCenter(current_squares){
 
-        let result = [];
+        return (
+            this.center &&
+            Number.isInteger(this.center) &&
+            current_squares[this.center].player === this.state.current_player
+        )
+
+    }
+
+
+    /**
+     * Checks if current player has at least 2 corners in the same line
+     *
+     * @param squares
+     * @returns {Array}
+     */
+    currentPlayerHasEnoughCorners(squares){
+
+        const current_player = this.state.current_player;
+
+        return (
+            ( squares[this.corners[0]].player === current_player && squares[this.corners[3]].player === current_player ) ||
+            ( squares[this.corners[1]].player === current_player && squares[this.corners[2]].player === current_player )
+        );
+
+    }
+
+
+    /**
+     * Gets the square's diagonal indexes
+     *
+     * @returns {[null,null]}
+     */
+    getDiagSquareIndexes(){
+
         let diag_one = [];
         let diag_two = [];
+        let result = [diag_one, diag_two];
 
-        for(let i = 1; i <= this.board_width; i++){
-
-            diag_one.push({
-                row: i,
-                column: i
-            });
-
-            diag_two.push({
-                row: i,
-                column: this.board_width - (i - 1)
-            });
-
+        for(let i = 0; i <= (this.square_count - 1); i += this.board_width + 1){
+            diag_one.push(i);
         }
 
-        result.push(diag_one);
-        result.push(diag_two);
+        for(let d = this.board_width - 1; d <= (this.square_count - this.board_width); d += this.board_width - 1){
+            diag_two.push(d);
+        }
 
         return result;
 
@@ -291,4 +333,37 @@ function chunkArray( arr, chunk_size){
     }
 
     return chunks;
+}
+
+
+/**
+ * Creates the initial board's data structure
+ *
+ * @param square_length
+ * @returns {Array}
+ */
+function create_square_data_set(square_length){
+
+    let data_set	= [];
+    let row = 1;
+    let column = 1;
+
+    for ( let x = 0; x < square_length; x++ ) {
+        for ( let i = 0; i < square_length; i++ ) {
+
+            data_set.push({
+                position: {
+                    row: row,
+                    column: column,
+                },
+                player: null
+            });
+            column ++;
+        }
+        row ++;
+        column = 1;
+    }
+
+    return data_set;
+
 }
