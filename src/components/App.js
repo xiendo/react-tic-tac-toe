@@ -4,6 +4,7 @@ import HistoryOrderBtn from './HistoryOrderBtn';
 import Board from './Board';
 
 export default class Game extends React.Component {
+
     constructor(props) {
         super(props);
 
@@ -13,6 +14,7 @@ export default class Game extends React.Component {
         this.corners = this.getCorners();
         this.diag_square_indexes = this.getDiagSquareIndexes();
         this.handleHistoryOrderClick = this.handleHistoryOrderClick.bind(this);
+
         this.state = {
             history: [
                 {
@@ -64,11 +66,13 @@ export default class Game extends React.Component {
 
     }
 
+
     handleHistoryOrderClick(){
         this.setState({
             historyAsc: !this.state.historyAsc
         })
     }
+
 
     /**
      * Helps reduce diagonal win checks
@@ -78,7 +82,6 @@ export default class Game extends React.Component {
     boardHasCenter(){
         return (this.board_width % 2 === 1)
     }
-
 
     /**
      * Gets the index value of each corner of the square/board
@@ -105,6 +108,7 @@ export default class Game extends React.Component {
             xIsNext: (step % 2) === 0
         });
     }
+
 
     getWinningData( current_squares ){
 
@@ -181,6 +185,7 @@ export default class Game extends React.Component {
         return false;
 
     }
+
 
     currentPlayerOwnsCenter(current_squares){
 
@@ -265,6 +270,9 @@ export default class Game extends React.Component {
             status = "Winner: " + winning_data.winner;
             winning_data.indexes = winning_data.squares.map((value, index) => value.position.index);
 
+        }
+        else if(this.state.stepNumber === this.square_count){
+            status = "Draw";
         }
         else {
             status = "Next player: " + (this.state.xIsNext ? "X" : "O");
