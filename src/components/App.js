@@ -1,24 +1,29 @@
 import React from 'react';
-import {create_square_data_set} from './helpers';
+import {boardHasCenter, getCorners, getDiagSquareIndexes, create_square_data_set, boardWidthMinMax} from './helpers';
 import HistoryOrderBtn from './HistoryOrderBtn';
+import BoardSizeInput from './BoardSizeInput';
 import Board from './Board';
 
 export default class Game extends React.Component {
 
-    constructor(props) {
+    constructor(props){
         super(props);
 
-        this.board_width = 4;
-        this.square_count = Math.pow(this.board_width, 2);
-        this.center = ( this.boardHasCenter() ) ? Math.round(this.square_count / 2) - 1 : false;
-        this.corners = this.getCorners();
-        this.diag_square_indexes = this.getDiagSquareIndexes();
         this.handleHistoryOrderClick = this.handleHistoryOrderClick.bind(this);
+        this.handleBoardSizeInput = this.handleBoardSizeInput.bind(this);
 
         this.state = {
+            board_width: 3,
+            square_count: 9,
+            center: 4,
+            corners: [0, 2, 6, 8],
+            diag_square_indexes: [
+                [0, 4, 8],
+                [2, 4, 6]
+            ],
             history: [
                 {
-                    squares: create_square_data_set(this.board_width),
+                    squares: create_square_data_set(3),
                     player: null,
                     position: null
                 }
@@ -33,6 +38,7 @@ export default class Game extends React.Component {
     }
 
     /**
+     * Runs when a player checks a square and stores/updates the state/data
      *
      * @param i
      */
@@ -67,7 +73,11 @@ export default class Game extends React.Component {
     }
 
 
+    /**
+     * Re-orders the moves list in ASC/DESC
+     */
     handleHistoryOrderClick(){
+
         this.setState({
             historyAsc: !this.state.historyAsc
         })
@@ -75,33 +85,51 @@ export default class Game extends React.Component {
 
 
     /**
-     * Helps reduce diagonal win checks
+     * Handles the board width input and updates the state w/ corresponding values given a board width
      *
-     * @returns {boolean}
+     * @param e
      */
-    boardHasCenter(){
-        return (this.board_width % 2 === 1)
+    handleBoardSizeInput(e){
+
+        const input_value = e.target.value;
+        let board_width,
+            square_count;
+
+        //empty input OR not a number
+        if(isNaN(input_value)){
+            return;
+        }
+
+        board_width = Math.round(boardWidthMinMax(input_value, 3, 20));
+        square_count = Math.pow(board_width, 2);
+
+        this.setState({
+            board_width: board_width,
+            square_count: square_count,
+            center: ( boardHasCenter(board_width) ) ? Math.round(square_count / 2) - 1 : false,
+            corners: getCorners(board_width, square_count),
+            diag_square_indexes: getDiagSquareIndexes(board_width, square_count),
+            history: [
+                {
+                    squares: create_square_data_set(board_width),
+                    player: null,
+                    position: null
+                }
+            ],
+            stepNumber: 0,
+            current_player: 'O',
+            current_position: null,
+            xIsNext: true,
+            historyAsc: true
+        })
     }
+
 
     /**
-     * Gets the index value of each corner of the square/board
+     * Jump to a step in the history of the game
+     *
+     * @param step
      */
-    getCorners(){
-
-        //corner 1
-        let corners = [0];
-        //corner 2
-        corners.push(this.board_width - 1);
-        //corner 3
-        corners.push((this.square_count - 1) - (this.board_width -1));
-        //corner 4
-        corners.push(this.square_count - 1);
-
-        return corners;
-
-    }
-
-
     jumpTo(step) {
         this.setState({
             stepNumber: step,
@@ -110,6 +138,14 @@ export default class Game extends React.Component {
     }
 
 
+    /**
+     * Get the relevant data for the win.
+     *  - Player
+     *  - squares positions
+     *
+     * @param current_squares
+     * @returns {*}
+     */
     getWinningData( current_squares ){
 
         const current_player = this.state.current_player;
@@ -118,13 +154,13 @@ export default class Game extends React.Component {
         });
 
         //player has enough moves to win
-        if(player_data_set.length >= this.board_width){
+        if(player_data_set.length >= this.state.board_width){
 
             //check row wins
             const row = player_data_set.filter( ( value, index, arr ) => {
                 return (value.position.row === this.state.current_position.row);
             });
-            if(row.length === this.board_width){
+            if(row.length === this.state.board_width){
                 return {
                     winner: this.state.current_player,
                     squares: row
@@ -135,7 +171,7 @@ export default class Game extends React.Component {
             const column = player_data_set.filter( ( value, index, arr ) => {
                 return (value.position.column === this.state.current_position.column)
             });
-            if(column.length === this.board_width){
+            if(column.length === this.state.board_width){
                 return {
                     winner: this.state.current_player,
                     squares: column
@@ -145,7 +181,7 @@ export default class Game extends React.Component {
             //Check diagonal wins
             //Bail early if player does not have center OR at least 2 corners
             if(
-                ( this.center && !this.currentPlayerOwnsCenter(current_squares) ) ||
+                ( this.state.center && !this.currentPlayerOwnsCenter(current_squares) ) ||
                 !this.currentPlayerHasEnoughCorners(current_squares)
 
             ){
@@ -153,13 +189,13 @@ export default class Game extends React.Component {
             }
 
             //Run diagonal win check
-            for(let d = 0; d < this.diag_square_indexes.length; d++){
+            for(let d = 0; d < this.state.diag_square_indexes.length; d++){
 
                 let result = [];
 
-                for(let i = 0; i < this.diag_square_indexes[d].length; i++){
+                for(let i = 0; i < this.state.diag_square_indexes[d].length; i++){
 
-                    const square_index = this.diag_square_indexes[d][i];
+                    const square_index = this.state.diag_square_indexes[d][i];
 
                     if(
                         typeof current_squares[square_index] !== 'undefined' &&
@@ -171,7 +207,7 @@ export default class Game extends React.Component {
 
                 }
 
-                if(result.length === this.board_width){
+                if(result.length === this.state.board_width){
                     return {
                         winner: this.state.current_player,
                         squares: result
@@ -187,12 +223,18 @@ export default class Game extends React.Component {
     }
 
 
+    /**
+     * Checks if the current player has checked the center position on the board
+     *
+     * @param current_squares
+     * @returns {number|boolean}
+     */
     currentPlayerOwnsCenter(current_squares){
 
         return (
-            this.center &&
-            Number.isInteger(this.center) &&
-            current_squares[this.center].player === this.state.current_player
+            this.state.center &&
+            Number.isInteger(this.state.center) &&
+            current_squares[this.state.center].player === this.state.current_player
         )
 
     }
@@ -209,38 +251,15 @@ export default class Game extends React.Component {
         const current_player = this.state.current_player;
 
         return (
-            ( squares[this.corners[0]].player === current_player && squares[this.corners[3]].player === current_player ) ||
-            ( squares[this.corners[1]].player === current_player && squares[this.corners[2]].player === current_player )
+            ( squares[this.state.corners[0]].player === current_player && squares[this.state.corners[3]].player === current_player ) ||
+            ( squares[this.state.corners[1]].player === current_player && squares[this.state.corners[2]].player === current_player )
         );
 
     }
 
 
-    /**
-     * Gets the square's diagonal indexes
-     *
-     * @returns {[null,null]}
-     */
-    getDiagSquareIndexes(){
-
-        let diag_one = [];
-        let diag_two = [];
-        let result = [diag_one, diag_two];
-
-        for(let i = 0; i <= (this.square_count - 1); i += this.board_width + 1){
-            diag_one.push(i);
-        }
-
-        for(let d = this.board_width - 1; d <= (this.square_count - this.board_width); d += this.board_width - 1){
-            diag_two.push(d);
-        }
-
-        return result;
-
-    }
-
-
     render() {
+
         const history = this.state.history;
         const current = history[this.state.stepNumber];
         const winning_data = this.getWinningData(current.squares);
@@ -271,7 +290,7 @@ export default class Game extends React.Component {
             winning_data.indexes = winning_data.squares.map((value, index) => value.position.index);
 
         }
-        else if(this.state.stepNumber === this.square_count){
+        else if(this.state.stepNumber === this.state.square_count){
             status = "Draw";
         }
         else {
@@ -282,8 +301,8 @@ export default class Game extends React.Component {
             <div className="game">
                 <div className="game-board">
                     <Board
-                        board_width={this.board_width}
-                        square_count={this.square_count}
+                        board_width={this.state.board_width}
+                        square_count={this.state.square_count}
                         squares={current.squares}
                         onClick={i => this.handleSquareClick(i)}
                         winning_data={winning_data}
@@ -292,6 +311,7 @@ export default class Game extends React.Component {
                 <div className="game-info">
                     <div>{status}</div>
                     <h3>Go to a move</h3>
+                    <BoardSizeInput handleChange={this.handleBoardSizeInput} />
                     <HistoryOrderBtn
                         className="history-btns"
                         value={(!this.state.historyAsc) ? "Ascending" : "Descending" }

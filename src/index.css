@@ -45,6 +45,11 @@ ol, ul {
   flex-direction: row;
 }
 
+#board-size-input{
+  text-align: center;
+  margin-left: 5px;
+}
+
 .game-info {
   margin-left: 20px;
 }

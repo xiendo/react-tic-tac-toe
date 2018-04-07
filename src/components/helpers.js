@@ -1,4 +1,56 @@
 /**
+ * Helps reduce diagonal win checks
+ *
+ * @returns {boolean}
+ */
+export function boardHasCenter( board_width ){
+    return (board_width % 2 === 1)
+}
+
+/**
+ * Gets the index value of each corner of the square/board
+ */
+export function getCorners( board_width, square_count ){
+
+    //corner 1
+    let corners = [0];
+    //corner 2
+    corners.push(board_width - 1);
+    //corner 3
+    corners.push((square_count - 1) - (board_width -1));
+    //corner 4
+    corners.push(square_count - 1);
+
+    return corners;
+
+}
+
+
+/**
+ * Gets the square's diagonal indexes
+ *
+ * @returns {[null,null]}
+ */
+export function getDiagSquareIndexes(board_width, square_count){
+
+    let diag_one = [];
+    let diag_two = [];
+    let result = [diag_one, diag_two];
+
+    for(let i = 0; i <= (square_count - 1); i += board_width + 1){
+        diag_one.push(i);
+    }
+
+    for(let d = board_width - 1; d <= (square_count - board_width); d += board_width - 1){
+        diag_two.push(d);
+    }
+
+    return result;
+
+}
+
+
+/**
  * Splits an array into chunks given a size
  *
  * @param arr
@@ -49,4 +101,17 @@ export function create_square_data_set(square_length){
 
     return data_set;
 
+}
+
+
+/**
+ * Limit the board width to a range (min, max)
+ *
+ * @param board_width
+ * @param min
+ * @param max
+ * @returns {number}
+ */
+export function boardWidthMinMax(board_width, min, max){
+    return Math.min(Math.max(board_width, min), max);
 }

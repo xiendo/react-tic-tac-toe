@@ -2,6 +2,9 @@ import React from 'react';
 import Square from './Square';
 import {chunkArray} from './helpers';
 
+/**
+ * Render's the Tic Tac Toe Game Board
+ */
 export default class Board extends React.Component {
     renderSquare(i) {
         return (
@@ -36,8 +39,8 @@ export default class Board extends React.Component {
         const square_keys = this.props.squares.map((value, index) => {
             return index;
         });
-        const chunks = chunkArray(square_keys, this.props.board_width);
-
+        const board_width = this.props.board_width;
+        const chunks = chunkArray(square_keys, board_width);
         for(let i=0; i < chunks.length; i++){
             board.push(this.renderRow(i, chunks[i]));
         }
