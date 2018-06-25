@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 /**
  * Renders the board size/width input field
@@ -7,12 +7,20 @@ import React from 'react';
  * @returns {XML}
  * @constructor
  */
-function BoardSizeInput(props){
-    return (
-        <div className="search-page">
-            <h3>Board Size<input onChange={props.handleChange} id="board-size-input" type="text" size="1" maxLength="2" /></h3>
-        </div>
-    );
+function BoardSizeInput(props) {
+  return (
+    <div>
+      <h3>
+        Board Size<input
+          onChange={props.handleChange}
+          id="board-size-input"
+          type="text"
+          size="1"
+          maxLength="2"
+        />
+      </h3>
+    </div>
+  );
 }
 
 export default BoardSizeInput;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 /**
  * Renders a square in the Tic Tac Toe board
@@ -7,12 +7,18 @@ import React from 'react';
  * @returns {XML}
  * @constructor
  */
-function Square(props){
-    return (
-        <button style={{ backgroundColor: props.background_color }} className="square" onClick={props.onClick}>
-            {props.value}
-        </button>
-    );
+function Square(props) {
+  return (
+    <button
+      style={{
+        backgroundColor: `${props.background_color}  !important`
+      }}
+      className="square"
+      onClick={props.onClick}
+    >
+      {props.value}
+    </button>
+  );
 }
 
 export default Square;
