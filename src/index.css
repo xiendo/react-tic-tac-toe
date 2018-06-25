@@ -27,15 +27,17 @@ i.board-icon.icon {
   padding-top: 0;
   padding-bottom: 0;
 }
+#game-end-header-row,
 #start-header-row {
   padding: 0;
 }
+#game-end-screen-header,
 #start-screen-header {
   color: #fff;
   font-size: 55px;
   margin-top: 10%;
 }
-
+#play-again-btn,
 #start-btn {
   margin-top: 10%;
 }
@@ -114,10 +116,12 @@ i.board-icon.icon {
 }
 /* General Media */
 @media only screen and (max-width: 320px) {
+  #game-end-screen-header,
   #start-screen-header {
     font-size: 42px;
     margin-top: 20%;
   }
+  #play-again-btn,
   #start-btn {
     margin-top: 25%;
     font-size: 20px;
@@ -135,6 +139,7 @@ i.board-icon.icon {
 }
 
 @media only screen and (min-width: 321px) and (max-width: 480px) {
+  #game-end-screen-header,
   #start-screen-header {
     font-size: 42px;
     margin-top: 35%;
@@ -147,9 +152,11 @@ i.board-icon.icon {
   }
 }
 @media only screen and (min-width: 481px) and (max-width: 767px) {
+  #game-end-screen-header,
   #start-screen-header {
     margin-top: 25%;
   }
+  #play-again-btn,
   #start-btn {
     margin-top: 10%;
   }
@@ -168,6 +175,7 @@ i.board-icon.icon {
   }
 }
 @media screen and (min-width: 768px) and (max-width: 1025px) {
+  #game-end-screen-header,
   #start-screen-header {
     font-size: 62px;
   }
@@ -192,10 +200,12 @@ i.board-icon.icon {
 
 /* Portrait */
 @media only screen and (max-width: 320px) and (orientation: portrait) {
+  #game-end-screen-header,
   #start-screen-header {
     font-size: 46px;
     margin-top: 20%;
   }
+  #play-again-btn,
   #start-btn {
     width: 60%;
     margin-top: 50%;
@@ -209,9 +219,11 @@ i.board-icon.icon {
 }
 
 @media only screen and (min-width: 321px) and (max-width: 480px) and (orientation: portrait) {
+  #game-end-screen-header,
   #start-screen-header {
     font-size: 56px;
   }
+  #play-again-btn,
   #start-btn {
     width: 60%;
     margin-top: 50%;
@@ -235,9 +247,11 @@ i.board-icon.icon {
 }
 
 @media screen and (min-width: 768px) and (max-width: 1025px) and (orientation: portrait) {
+  #game-end-screen-header,
   #start-screen-header {
     margin-top: 25%;
   }
+  #play-again-btn,
   #start-btn {
     margin-top: 20%;
   }
@@ -248,6 +262,7 @@ i.board-icon.icon {
   #start-screen-header {
     margin-top: 8%;
   }
+  #play-again-btn,
   #start-btn {
     width: 35%;
   }
@@ -264,6 +279,7 @@ i.board-icon.icon {
     margin-top: 10%;
     font-size: 46px;
   }
+  #play-again-btn,
   #start-btn {
     width: 30%;
   }

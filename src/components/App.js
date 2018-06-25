@@ -10,12 +10,14 @@ import {
 } from "./helpers";
 import StartScreen from "./StartScreen";
 import Board from "./Board";
+import GameEnd from "./GameEnd";
 
 export default class Game extends React.Component {
   constructor(props) {
     super(props);
 
     this.handleStartClick = this.handleStartClick.bind(this);
+    this.handlePlayAgainClick = this.handlePlayAgainClick.bind(this);
     this.handleHistoryItemClick = this.handleHistoryItemClick.bind(this);
     this.handleBoardSizeInput = this.handleBoardSizeInput.bind(this);
 
@@ -54,6 +56,24 @@ export default class Game extends React.Component {
   handleStartClick(e) {
     this.setState({
       gameStarted: true
+    });
+  }
+
+  handlePlayAgainClick(e) {
+    this.setState({
+      gameStarted: true,
+      history: [
+        {
+          squares: create_square_data_set(this.state.board_width),
+          player: null,
+          position: null
+        }
+      ],
+      stepNumber: 0,
+      current_player: "O",
+      current_position: null,
+      xIsNext: true,
+      squareDimensions: this.calculateSquareDimensions(this.state.board_width)
     });
   }
 
@@ -315,24 +335,32 @@ export default class Game extends React.Component {
       squareDimensions
     } = this.state;
 
+    if (!gameStarted) {
+      return <StartScreen handleStartClick={this.handleStartClick} />;
+    }
+
+    let status;
     const current = history[stepNumber];
     const winning_data = this.getWinningData(current.squares);
 
-    let status;
     if (winning_data) {
-      status = "Winner: " + winning_data.winner;
-      winning_data.indexes = winning_data.squares.map(
-        (value, index) => value.position.index
+      return (
+        <GameEnd
+          header={`${winning_data.winner} WINS!`}
+          handlePlayAgainClick={this.handlePlayAgainClick}
+        />
       );
-    } else if (this.state.stepNumber === this.state.square_count) {
-      status = "Draw";
+    } else if (stepNumber === square_count) {
+      return (
+        <GameEnd
+          header="DRAW"
+          handlePlayAgainClick={this.handlePlayAgainClick}
+        />
+      );
     } else {
       status = this.state.xIsNext ? "X" : "O";
     }
 
-    if (!gameStarted) {
-      return <StartScreen handleStartClick={this.handleStartClick} />;
-    }
     const trigger = (
       <span>
         <Icon name="history" /> Move History
